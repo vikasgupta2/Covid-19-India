@@ -62,9 +62,10 @@ app.get("/states/:stateId/", async (request, response) => {
 });
 
 app.post("/districts/", async (request, response) => {
-  const { districtName, StateId, cases, cured, active, deaths } = request.body;
-  const InsertData = `INSERT INTO District (district_name, state_id, cases, cured, active, deaths)
-    VALUES ('${districtName}', ${StateId}, ${cases}, ${cured}, ${active}, ${deaths})`;
+  const { stateId } = request.params;
+  const { districtName, cases, cured, active, deaths } = request.body;
+  const InsertData = `INSERT INTO District (district_name, cases, cured, active, deaths)
+    VALUES ('${districtName}', ${cases}, ${cured}, ${active}, ${deaths}) WHERE state_id = ${stateId};`;
   await database.run(InsertData);
   response.send("District Successfully Added");
 });
@@ -72,10 +73,8 @@ app.post("/districts/", async (request, response) => {
 app.get("/districts/:districtId/", async (request, response) => {
   const { districtId } = request.params;
   const getDistrictDetails = `SELECT * FROM District WHERE district_id = ${districtId}`;
-  const districtDetails = await database.all(getDistrictDetails);
-  response.send(
-    districtDetails.map((each) => convertDistrictObjectToResponseObject(each))
-  );
+  const districtDetails = await database.get(getDistrictDetails);
+  response.send(convertDistrictObjectToResponseObject(districtDetails));
 });
 
 app.delete("/districts/:districtId/", async (request, response) => {
@@ -86,12 +85,12 @@ app.delete("/districts/:districtId/", async (request, response) => {
 });
 
 app.put("/districts/:districtId/", async (request, response) => {
-  const { districtId } = request.params;
-  const { districtName, stateId, cases, cured, active, deaths } = request.body;
+  const { districtId, stateId } = request.params;
+  const { districtName, cases, cured, active, deaths } = request.body;
 
   const insertQuery = `UPDATE District SET
     district_name = '${districtName}',
-    state_id = ${StateId},
+    state_id = ${stateId},
     cases = ${cases},
     cured = ${cured},
     active = ${active},
@@ -113,7 +112,7 @@ app.get("/states/:stateId/stats/", async (request, response) => {
 app.get("/districts/:districtId/details/", async (request, response) => {
   const { districtId } = request.params;
   const getObjectQuery = `SELECT state_name FROM State JOIN District ON State.state_id = District.state_id WHERE district_id = ${districtId}`;
-  const state = await database.all(getObjectQuery);
+  const state = await database.get(getObjectQuery);
   response.send({ stateName: state.state_name });
 });
 module.exports = app;
