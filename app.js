@@ -58,8 +58,7 @@ app.get("/states/:stateId/", async (request, response) => {
   const { stateId } = request.params;
   const getState = `SELECT * FROM State WHERE state_id = ${stateId}`;
   const allStates = await database.get(getState);
-  response.send(convertStateObjectToResponseObject(allStates))
-  );
+  response.send(convertStateObjectToResponseObject(allStates));
 });
 
 app.post("/districts/", async (request, response) => {
