@@ -57,9 +57,8 @@ app.get("/states/", async (request, response) => {
 app.get("/states/:stateId/", async (request, response) => {
   const { stateId } = request.params;
   const getState = `SELECT * FROM State WHERE state_id = ${stateId}`;
-  const allStates = await database.all(getState);
-  response.send(
-    allStates.map((each) => convertStateObjectToResponseObject(each))
+  const allStates = await database.get(getState);
+  response.send(convertStateObjectToResponseObject(allStates))
   );
 });
 
